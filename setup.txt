@@ -1,0 +1,6 @@
+# These are notes on how to setup to use Ross AI through Claude Code.
+
+source /tools/Xilinx/2026.1/Vivado/settings64.sh; source /tools/Xilinx/2026.1/Vitis/settings64.sh;
+
+claude mcp add vivado -- /home/pedro/Downloads/xilinx/vivado-mcp-server-linux-amd64-2026.9.1 --stdio-bridge
+
