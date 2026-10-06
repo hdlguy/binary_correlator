@@ -19,7 +19,7 @@ module correlator #(
     input   logic           clk,
     input   logic           rst,        // synchronous, active high; clears valid pipeline
     //
-    input   logic           s_tvalid,   // at most one valid every 2 clocks
+    input   logic           s_tvalid,   // any rate, up to one sample every clock
     output  logic           s_tready,
     input   logic           s_tdata,    // 1-bit data (0,1) interpreted as (+1,-1)
     input   logic           s_tlast,

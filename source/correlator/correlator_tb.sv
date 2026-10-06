@@ -104,13 +104,15 @@ module correlator_tb #(
 
     // ---------------- stimulus ----------------
 
-    int max_gap = 1;        // extra idle clocks are random in 0..max_gap-1 (on top of the mandatory 1)
+    // idle clocks after each sample: min_gap, plus a random 0..max_gap-1 extra
+    int min_gap = 1;        // 1 = 150 Msps at 300 MHz, 0 = full rate (a sample every clock)
+    int max_gap = 1;
 
     task automatic send(input bit d, input bit last);
         s_tvalid <= 1; s_tdata <= d; s_tlast <= last;
         @(posedge clk);
         s_tvalid <= 0; s_tdata <= 0; s_tlast <= 0;
-        @(posedge clk);
+        repeat (min_gap) @(posedge clk);
         repeat ($urandom_range(max_gap - 1, 0)) @(posedge clk);
     endtask
 
@@ -193,6 +195,23 @@ module correlator_tb #(
         // 6. irregular valid spacing
         max_gap = 4;
         run_record("irregular gaps, delay 99", 99, 2, 0, N_TAPS);
+        max_gap = 1;
+
+        // 7. full rate: a sample on every clock, single record, back to back, then random gaps
+        min_gap = 0;
+        run_record("full rate, delay 17", 17, 2, 0, N_TAPS);
+        out_y.delete();
+        send_record(3, 2, 0);
+        send_record(2*N_TAPS, 2, 0);
+        drain();
+        if (out_y.size() != 2*REC_LEN) begin
+            $error("full rate back to back: %0d outputs, expected %0d", out_y.size(), 2*REC_LEN);
+            n_err++;
+        end else
+            $display("  %-28s done", "full rate back to back");
+        max_gap = 3;
+        run_record("full rate + gaps, delay 250", 250, 2, 10, N_TAPS/2);
+        min_gap = 1;
         max_gap = 1;
 
         // reset in the middle of the stream; the model restarts too

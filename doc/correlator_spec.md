@@ -55,7 +55,7 @@ Let x[n] = ±1 be input sample n and t[i] = ±1 be template tap i. The output fo
 
 ### Input (slave)
 - `s_tdata` (1 bit) carries one sample per transfer, qualified by `s_tvalid`.
-- Samples arrive at 150 Msps on every other clock cycle. The design depends on the upstream source guaranteeing at most one `s_tvalid` every 2 clocks. Gaps longer than that are allowed.
+- In this application samples arrive at 150 Msps, on every other clock cycle. The design itself has no spacing requirement: it accepts a sample on every clock (300 Msps at 300 MHz), and any gaps between samples are allowed.
 - `s_tlast` marks the last sample of a record.
 - `s_tready` is always 1. The input cannot be stalled.
 
@@ -87,7 +87,8 @@ A self-checking SystemVerilog testbench compares every output against a behavior
 3. Fully random data.
 4. All-zero data and all-one data.
 5. Several records back to back, and records separated by gaps.
-6. An s_tvalid pattern with irregular gaps (still at most one valid every 2 clocks).
+6. An s_tvalid pattern with irregular gaps.
+7. Full rate, with a sample on every clock: a single record, records back to back, and full rate mixed with random gaps.
 
 Each case runs with both the 127-tap and the 1023-tap configurations (`simulate/sim.sh`). The testbench also resets the design mid-stream and checks that outputs resume correctly.
 
