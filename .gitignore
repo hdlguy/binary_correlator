@@ -1,0 +1,15 @@
+# Vivado tool output
+.vivado-ai/
+*.jou
+*.log
+*.str
+implement/proj.*
+implement/.Xil/
+implement/results/
+implement/results_ooc/
+simulate/xsim.dir/
+simulate/*.out
+simulate/*.pb
+simulate/*.wdb
+simulate/.Xil/
+implement/clockInfo.txt
