@@ -11,14 +11,10 @@ set_property default_lib work [current_project]
 load_features ipintegrator
 tclapp::install ultrafast -quiet
 
-set_property  ip_repo_paths  ../../hls_proj/solution1/impl/ip/ [current_project]
-update_ip_catalog
 
-read_ip ../source/sinrom/sinrom.xci
-read_ip ../source/iir_ila/iir_ila.xci
-read_ip ../source/iir_filter_core/iir_filter_core.xci
-upgrade_ip -quiet  [get_ips *]
-generate_target {all} [get_ips *]
+#read_ip ../source/iir_filter_core/iir_filter_core.xci
+#upgrade_ip -quiet  [get_ips *]
+#generate_target {all} [get_ips *]
 
 read_verilog -sv ../source/correlator/correlator.sv
 
