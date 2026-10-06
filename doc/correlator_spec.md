@@ -93,10 +93,38 @@ A self-checking SystemVerilog testbench compares every output against a behavior
 Each case runs with both the 127-tap and the 1023-tap configurations (`simulate/sim.sh`). The testbench also resets the design mid-stream and checks that outputs resume correctly.
 
 ### Hardware
-The design will be compiled and run in hardware with synthetic data, and observed with an ILA core. The synthetic data source is to be decided.
+The design is compiled and run in hardware with synthetic data, and observed with an ILA core. See Hardware Test Design below.
+
+## Synthetic Data Source
+- `octave/gen_rom_data.m` generates one 3069-sample record (3 × 1023): noise with standard deviation 3, plus three returns of the code with gains 1.00, 0.83 and 0.71 at delays 100, 900 and 1800, quantized to 1 bit. There is no oversampling. A fixed random seed makes the record reproducible.
+- It writes `source/datagen/lidar_record.mem` (the ROM contents) and `source/datagen/lidar_expected.txt`, the correlator output for each sample when the ROM plays in a continuous loop. With looped playback the correlation is circular, so every output after the first pass has an exact expected value. The peaks are 251, 273 and 265 at outputs 1122, 1922 and 2822. Away from the peaks the output has a standard deviation of 31.5 and a largest magnitude of 117.
+- `source/datagen/datagen.sv` plays the ROM as an AXI stream in a continuous loop, with `m_tlast` on sample 3068. It sends one sample every 2 clocks, or one every clock when `full_rate` is set. The ROM is one RAMB18.
+- `source/datagen/datagen_tb.sv` checks the player against the ROM file at both rates, and checks the correlator output after it against `lidar_expected.txt`: 6138 outputs per rate, 0 mismatches.
+
+## Hardware Test Design
+`source/top.sv` and `source/top.xdc` (Arty A7-100T):
+
+- **Clocks:** the 100 MHz oscillator (pin E3) drives an MMCM: VCO 900 MHz, 300 MHz processing clock (÷3), 150 MHz ILA clock (÷6).
+- **Reset:** the red RESET button (C2), also held until the MMCM locks.
+- **SW0:** 0 = 150 Msps, 1 = 300 Msps (full rate).
+- **LEDs:** LD4 = MMCM locked, LD5 = heartbeat (about 1 Hz), LD6 = full-rate mode.
+- **Data path:** datagen → correlator → ILA.
+- **ILA:** the ILA core cannot meet 300 MHz on the -1 part, so it runs at 150 MHz and captures two 300 MHz cycles per sample as two lanes. Lane 0 is the earlier cycle.
+  - probe0 = lane 0 correlator `{tlast, tvalid, tdata[15:0]}`
+  - probe1 = lane 1 correlator `{tlast, tvalid, tdata[15:0]}`
+  - probe2 = datagen `{lane 1 {tlast, tvalid, tdata}, lane 0 {tlast, tvalid, tdata}}`
+
+  At 150 Msps every valid sample lands in the same lane. The depth is 8192 (about 2.7 records at 150 Msps), with storage qualification enabled. The Vivado BASIC license allows at most 5 ILA probes, which is why the signals are packed into 3.
+- **Debug hub:** its clock divider is enabled in `top.xdc`, so its JTAG logic meets timing at 150 MHz.
+- **Build:** `implement/setup.tcl`, then `implement/compile.tcl`. Results:
+
+| LUTs | Registers | BRAM tiles | Setup slack (WNS) | Hold slack (WHS) |
+|------|-----------|------------|-------------------|------------------|
+| 2,614 (4.1%) | 5,054 (4.0%) | 10.5 (7.8%) | +0.263 ns | +0.056 ns |
 
 ## Open Items
-- On-chip synthetic data generator for the hardware test (postponed).
+- Post-correlator averaging: read-add-write accumulation into block RAM, which the final system needs at realistic noise levels.
+- Oversampling (M = 2 ADC samples per chip), which doubles the template to 2046 taps.
 
 ## Appendix: Template Sequence
 The template is `seq = m_sequence(10)` from `octave/m_sequence.m`, listed 64 chips per row. The numbers on the left are chip indices seq(1)..seq(1023).
