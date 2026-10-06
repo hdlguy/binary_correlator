@@ -1,4 +1,4 @@
-% a function to produce maximal length (2^N)-1 LFSR sequences
+% a function to produce maximal length (2^N)-1 LFSR sequences derived from Xilinx XAPP052
 
 function retval = m_sequence (N)
 
