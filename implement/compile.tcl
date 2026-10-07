@@ -1,4 +1,4 @@
-# Script to compile the FPGA with zynq processor system all the way to bit file.
+# Script to compile the FPGA all the way to bit file.
 
 close_project -quiet
 
@@ -18,10 +18,6 @@ report_utilization      -file  ./results/utilization.rpt
 
 write_debug_probes      -force ./results/top.ltx
 write_bitstream         -force ./results/top.bit
-
-set_property BITSTREAM.CONFIG.SPI_BUSWIDTH 4 [get_designs impl_1]
-write_bitstream         -force ./results/top_x4.bit
-write_cfgmem -force -format mcs -size 16 -interface SPIx4 -loadbit {up 0x00000000 "./results/top_x4.bit" } -file "./results/top.mcs"
 
 close_project
 
