@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 // correlator.sv
 //
 // Streaming binary correlator for pulse compression (see doc/correlator_spec.md).
