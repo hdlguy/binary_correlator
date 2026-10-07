@@ -1,5 +1,5 @@
 % gen_rom_data.m
-% Generates one record of synthetic 1-bit lidar data for the block ROM in the on-chip
+% Generates one record of synthetic 1-bit rx data for the block ROM in the on-chip
 % data source, plus the correlation the hardware should produce from it.
 %
 % Run from the octave directory:  octave --no-gui -q gen_rom_data.m
@@ -9,9 +9,9 @@
 % enough that a single record gives clear peaks.
 %
 % Outputs (in source/datagen/):
-%   lidar_record.mem    ROM contents for $readmemb, one bit per line, sample 0 first.
+%   rx_record.mem       ROM contents for $readmemb, one bit per line, sample 0 first.
 %                       Bit 0 = +1, bit 1 = -1.
-%   lidar_expected.txt  Expected correlator output for each sample of the record, one
+%   corr_expected.txt   Expected correlator output for each sample of the record, one
 %                       signed integer per line. It assumes the ROM is played back to back
 %                       in a loop, so after the first pass the correlator window wraps
 %                       around the record and every output is well defined:
@@ -60,10 +60,10 @@ endfor
 if !exist(outdir, "dir")
     mkdir(outdir);
 endif
-fid = fopen(fullfile(outdir, "lidar_record.mem"), "w");
+fid = fopen(fullfile(outdir, "rx_record.mem"), "w");
 fprintf(fid, "%d\n", bits);
 fclose(fid);
-fid = fopen(fullfile(outdir, "lidar_expected.txt"), "w");
+fid = fopen(fullfile(outdir, "corr_expected.txt"), "w");
 fprintf(fid, "%d\n", y);
 fclose(fid);
 
@@ -78,7 +78,7 @@ for k = 1:numel(pk)
     printf("  return %d: gain %.2f, delay %4d -> peak %4d at output %4d\n", k, Gs(k), dly(k), y(pk(k)+1), pk(k));
 endfor
 printf("  off-peak: std %.1f, max |y| %d\n", std(y(mask)), max(abs(y(mask))));
-printf("wrote %s/lidar_record.mem and lidar_expected.txt\n", outdir);
+printf("wrote %s/rx_record.mem and corr_expected.txt\n", outdir);
 
 % plot
 if do_plot

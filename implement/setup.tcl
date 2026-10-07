@@ -37,7 +37,7 @@ read_verilog -sv ../source/correlator/template_pkg.sv
 read_verilog -sv ../source/correlator/correlator.sv
 read_verilog -sv ../source/datagen/datagen.sv
 read_verilog -sv ../source/top.sv
-add_files ../source/datagen/lidar_record.mem
+add_files ../source/datagen/rx_record.mem
 set_property top top [current_fileset]
 
 add_files -fileset sim_1 ../source/correlator/correlator_tb.sv

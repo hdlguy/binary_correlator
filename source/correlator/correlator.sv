@@ -1,6 +1,6 @@
 // correlator.sv
 //
-// Streaming binary correlator for lidar pulse compression (see doc/correlator_spec.md).
+// Streaming binary correlator for pulse compression (see doc/correlator_spec.md).
 //
 // Data and template are 1-bit, 0 = +1 and 1 = -1. Every input sample produces one output:
 //

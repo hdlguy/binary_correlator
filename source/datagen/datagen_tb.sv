@@ -3,7 +3,7 @@
 // Self-checking testbench for datagen.sv feeding correlator.sv. Checks that:
 //   - datagen plays the ROM file in order, in a loop, with m_tlast on the last sample,
 //     at one sample every 2 clocks (full_rate = 0) or every clock (full_rate = 1);
-//   - the correlator output matches lidar_expected.txt from octave/gen_rom_data.m for
+//   - the correlator output matches corr_expected.txt from octave/gen_rom_data.m for
 //     every output after the first pass (the first pass still holds reset values).
 //
 // Run from the simulate directory so the relative file paths resolve.
@@ -13,8 +13,8 @@
 module datagen_tb;
 
     localparam int    LEN      = 3069;
-    localparam string MEM_FILE = "../source/datagen/lidar_record.mem";
-    localparam string EXP_FILE = "../source/datagen/lidar_expected.txt";
+    localparam string MEM_FILE = "../source/datagen/rx_record.mem";
+    localparam string EXP_FILE = "../source/datagen/corr_expected.txt";
     localparam int    N_PASS   = 3;
 
     logic        clk = 0;
@@ -95,7 +95,7 @@ module datagen_tb;
         wait (n_out == N_PASS * LEN);
         @(posedge clk);
         enable <= 0;
-        $display("  full_rate=%0d: %0d samples, %0d outputs, %0d compared with lidar_expected.txt",
+        $display("  full_rate=%0d: %0d samples, %0d outputs, %0d compared with corr_expected.txt",
                  rate, n_in, n_out, n_chk);
         repeat (50) @(posedge clk);
     endtask

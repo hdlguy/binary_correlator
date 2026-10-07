@@ -10,7 +10,7 @@
 
 module datagen #(
     parameter int    LEN      = 3069,
-    parameter string MEM_FILE = "lidar_record.mem"
+    parameter string MEM_FILE = "rx_record.mem"
 )(
     input   logic   clk,
     input   logic   rst,        // synchronous, active high; restarts at sample 0

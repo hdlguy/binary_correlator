@@ -11,7 +11,7 @@
 //   led[3]    off
 //
 // The ILA (top_ila, created by implement/setup.tcl) captures the datagen stream and the
-// correlator output. Compare a capture with source/datagen/lidar_expected.txt.
+// correlator output. Compare a capture with source/datagen/corr_expected.txt.
 // The ILA core cannot meet 300 MHz on a -1 part, so it runs at 150 MHz and captures two
 // 300 MHz cycles per sample as two lanes: lane 0 is the earlier cycle, lane 1 the later.
 //   probe0 = lane 0 correlator {tlast, tvalid, tdata[15:0]}
@@ -75,7 +75,7 @@ module top (
     logic        c_tvalid, c_tlast;
     logic [15:0] c_tdata;
 
-    datagen #(.LEN(3069), .MEM_FILE("lidar_record.mem")) gen (
+    datagen #(.LEN(3069), .MEM_FILE("rx_record.mem")) gen (
         .clk, .rst, .enable(1'b1), .full_rate,
         .m_tvalid(d_tvalid), .m_tdata(d_tdata), .m_tlast(d_tlast)
     );

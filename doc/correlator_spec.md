@@ -1,5 +1,5 @@
 # Correlator Specifications
-This document describes a binary correlator FPGA logic block for lidar pulse compression.
+This document describes a binary correlator FPGA logic block for pulse compression.
 These specifications will evolve with the application. First, I want to see that something can be made to work using Claude. Then I can refine the requirements for the final application.
 
 ## Target Device
@@ -9,7 +9,7 @@ I will develop on a Digilent Arty A7-100T board. It carries a Xilinx XC7A100T (p
 - The internal clock rate is twice the data sample rate: 300 MHz clock, 150 Msps data.
 
 ## Data
-The captured lidar return is quantized to 1 bit, representing +1 or -1. The mapping is the same for the data and the template:
+The captured return is quantized to 1 bit, representing +1 or -1. The mapping is the same for the data and the template:
 
 | bit | value |
 |-----|-------|
@@ -97,9 +97,9 @@ The design is compiled and run in hardware with synthetic data, and observed wit
 
 ## Synthetic Data Source
 - `octave/gen_rom_data.m` generates one 3069-sample record (3 × 1023): noise with standard deviation 3, plus three returns of the code with gains 1.00, 0.83 and 0.71 at delays 100, 900 and 1800, quantized to 1 bit. There is no oversampling. A fixed random seed makes the record reproducible.
-- It writes `source/datagen/lidar_record.mem` (the ROM contents) and `source/datagen/lidar_expected.txt`, the correlator output for each sample when the ROM plays in a continuous loop. With looped playback the correlation is circular, so every output after the first pass has an exact expected value. The peaks are 251, 273 and 265 at outputs 1122, 1922 and 2822. Away from the peaks the output has a standard deviation of 31.5 and a largest magnitude of 117.
+- It writes `source/datagen/rx_record.mem` (the ROM contents) and `source/datagen/corr_expected.txt`, the correlator output for each sample when the ROM plays in a continuous loop. With looped playback the correlation is circular, so every output after the first pass has an exact expected value. The peaks are 251, 273 and 265 at outputs 1122, 1922 and 2822. Away from the peaks the output has a standard deviation of 31.5 and a largest magnitude of 117.
 - `source/datagen/datagen.sv` plays the ROM as an AXI stream in a continuous loop, with `m_tlast` on sample 3068. It sends one sample every 2 clocks, or one every clock when `full_rate` is set. The ROM is one RAMB18.
-- `source/datagen/datagen_tb.sv` checks the player against the ROM file at both rates, and checks the correlator output after it against `lidar_expected.txt`: 6138 outputs per rate, 0 mismatches.
+- `source/datagen/datagen_tb.sv` checks the player against the ROM file at both rates, and checks the correlator output after it against `corr_expected.txt`: 6138 outputs per rate, 0 mismatches.
 
 ## Hardware Test Design
 `source/top.sv` and `source/top.xdc` (Arty A7-100T):
